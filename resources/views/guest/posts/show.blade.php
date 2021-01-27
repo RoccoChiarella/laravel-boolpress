@@ -8,6 +8,7 @@
                 <div>
                     {{ $post->content }}
                 </div>
+                <p>Categoria: {{ $post->category ? $post->category->name : '-' }}</p>
             </div>
         </div>
     </div>
