@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Post;
+use Illuminate\Support\Str;
 
 class PostController extends Controller
 {
@@ -28,7 +29,7 @@ class PostController extends Controller
      */
     public function create()
     {
-        //
+        return view('admin.posts.create');
     }
 
     /**
@@ -39,51 +40,86 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $formData = $request->all();
+        $newPost = new Post();
+        $newPost->fill($formData);
+        $slug = Str::slug($newPost->title);
+        $slugBase = $slug;
+        $currentPost = Post::where('slug', $slug)->first();
+        $cont = 1;
+        while($currentPost) {
+            $slug = $slugBase . '-' . $cont;
+            $cont++;
+            $currentPost = Post::where('slug', $slug)->first();
+        }
+        $newPost->slug = $slug;
+        $newPost->save();
+        return redirect()->route('admin.posts.index');
     }
 
     /**
      * Display the specified resource.
      *
-     * @param  int  $id
+     * @param  Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(Post $post)
     {
-        //
+        if(!$post) {
+            abort(404);
+        }
+        return view('admin.posts.show', ['post' => $post]);
     }
 
     /**
      * Show the form for editing the specified resource.
      *
-     * @param  int  $id
+     * @param  Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function edit($id)
+    public function edit(Post $post)
     {
-        //
+        if(!$post) {
+            abort(404);
+        }
+        return view('admin.posts.edit', ['post' => $post]);
     }
 
     /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
+     * @param  Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, Post $post)
     {
-        //
+        $formData = $request->all();
+        if($formData['title'] != $post->title) {
+            $slug = Str::slug($formData['title']);
+            $slugBase = $slug;
+            $post_presente = Post::where('slug', $slug)->first();
+            $cont = 1;
+            while($post_presente) {
+                $slug = $slugBase . '-' . $cont;
+                $cont++;
+                $post_presente = Post::where('slug', $slug)->first();
+            }
+            $formData['slug'] = $slug;
+        }
+        $post->update($formData);
+        return redirect()->route('admin.posts.index');
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  int  $id
+     * @param  Post  $post
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
+    public function destroy(Post $post)
     {
-        //
+        $post->delete();
+        return redirect()->route('admin.posts.index');
     }
 }
