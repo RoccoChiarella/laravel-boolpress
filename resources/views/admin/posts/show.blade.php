@@ -19,6 +19,14 @@
                 <dd>{{ $post->content }}</dd>
                 <dt>Categoria</dt>
                 <dd>{{ $post->category ? $post->category->name : '-' }}</dd>
+                <dt>Tag</dt>
+                <dd>
+                    @forelse ($post->tags as $tag)
+                        {{ $tag->name }}{{ !$loop->last ? ',' : '' }}
+                    @empty
+                        -
+                    @endforelse
+                </dd>
             </dl>
             <a href="{{ route('admin.posts.edit', ['post' => $post->id]) }}"
                 class="btn btn-warning">
