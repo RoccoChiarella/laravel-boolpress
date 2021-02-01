@@ -46,6 +46,12 @@ class PostController extends Controller
      */
     public function store(Request $request)
     {
+        $request->validate([
+            'title' => 'required|max:255',
+            'content' => 'required',
+            'category_id' => 'nullable|exists:categories,id',
+            'tags' => 'exists:tags,id'
+        ]);
         $formData = $request->all();
         $newPost = new Post();
         $newPost->fill($formData);
@@ -60,7 +66,9 @@ class PostController extends Controller
         }
         $newPost->slug = $slug;
         $newPost->save();
-        $newPost->tags()->sync($form_data['tags']);
+        if(array_key_exists('tags', $formData)) {
+            $newPost->tags()->sync($formData['tags']);
+        }
         return redirect()->route('admin.posts.index');
     }
 
@@ -107,6 +115,12 @@ class PostController extends Controller
      */
     public function update(Request $request, Post $post)
     {
+        $request->validate([
+            'title' => 'required|max:255',
+            'content' => 'required',
+            'category_id' => 'nullable|exists:categories,id',
+            'tags' => 'exists:tags,id'
+        ]);
         $formData = $request->all();
         if($formData['title'] != $post->title) {
             $slug = Str::slug($formData['title']);
@@ -121,7 +135,9 @@ class PostController extends Controller
             $formData['slug'] = $slug;
         }
         $post->update($formData);
-        $post->tags()->sync($formData['tags']);
+        if(array_key_exists('tags', $formData)) {
+            $post->tags()->sync($formData['tags']);
+        }
         return redirect()->route('admin.posts.index');
     }
 

@@ -133,6 +133,10 @@ return [
         'attribute-name' => [
             'rule-name' => 'custom-message',
         ],
+        'title' => [
+           'required' => 'Il titolo è obbligatorio!!!!!',
+           'max' => 'Hai scritto un titolo troppo lungo!!!!'
+       ]
     ],
 
     /*
